@@ -23,15 +23,15 @@ CREATE TABLE Attribute(
     FOREIGN KEY (business_id) REFERENCES Business(business_id) ON DELETE CASCADE
 );
 
-CREATE TABLE SubAttribute(
-    business_id    VARCHAR(22),
-    attribute      VARCHAR(30),
-    sub_attribute  VARCHAR(30),
-    value          TEXT,
-    PRIMARY KEY (business_id, attribute, sub_attribute),
-    FOREIGN KEY (business_id) REFERENCES Business(business_id) ON DELETE CASCADE,
-    FOREIGN KEY (business_id, attribute) REFERENCES Attribute(business_id, attribute)
-);
+-- CREATE TABLE SubAttribute(
+--     business_id    VARCHAR(22),
+--     attribute      VARCHAR(30),
+--     sub_attribute  VARCHAR(30),
+--     value          TEXT,
+--     PRIMARY KEY (business_id, attribute, sub_attribute),
+--     FOREIGN KEY (business_id) REFERENCES Business(business_id) ON DELETE CASCADE,
+--     FOREIGN KEY (business_id, attribute) REFERENCES Attribute(business_id, attribute)
+-- );
 
 CREATE TABLE Users(
     user_id		        VARCHAR(22) PRIMARY KEY,
