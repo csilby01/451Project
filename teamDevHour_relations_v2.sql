@@ -20,8 +20,8 @@ CREATE TABLE Attribute(
     attribute       VARCHAR(30),
     value           TEXT,
     PRIMARY KEY (business_id, attribute),
-    FOREIGN KEY business_id REFERENCES Business(business_id) ON DELETE CASCADE
-)
+    FOREIGN KEY (business_id) REFERENCES Business(business_id) ON DELETE CASCADE
+);
 
 CREATE TABLE SubAttribute(
     business_id    VARCHAR(22),
@@ -29,11 +29,11 @@ CREATE TABLE SubAttribute(
     sub_attribute  VARCHAR(30),
     value          TEXT,
     PRIMARY KEY (business_id, attribute, sub_attribute),
-    FOREIGN KEY business_id REFERENCES Business(business_id) ON DELETE CASCADE,
-    FOREIGN KEY attribute REFERENCES Attribute(attribute)
-)
+    FOREIGN KEY (business_id) REFERENCES Business(business_id) ON DELETE CASCADE,
+    FOREIGN KEY (business_id, attribute) REFERENCES Attribute(business_id, attribute)
+);
 
-CREATE TABLE User(
+CREATE TABLE Users(
     user_id		        VARCHAR(22) PRIMARY KEY,
     average_stars 	    FLOAT(2),
     compliment_cool 	INT,
@@ -50,7 +50,7 @@ CREATE TABLE User(
     cool			    INT,
     fans			    INT,
     funny 			    INT,
-    name			    VARCHAR(30),
+    username			VARCHAR(30),
     review_count		INT,
     useful			    INT,
     yelping_since		DATE NOT NULL
@@ -60,16 +60,16 @@ CREATE TABLE Friends(
     user_id     VARCHAR(22),
     friend_id   VARCHAR(22),
     PRIMARY KEY(user_id, friend_id),
-    FOREIGN KEY user_id REFERENCES User(user_id),
-    FOREIGN KEY friend_id REFERENCES User(user_id)
+    FOREIGN KEY (user_id) REFERENCES Users(user_id),
+    FOREIGN KEY (friend_id) REFERENCES Users(user_id)
 );
 
 CREATE TABLE Elite(
     user_id     VARCHAR(22),
     year        INT,
     PRIMARY KEY(user_id, year),
-    FOREIGN KEY user_id REFERENCES User(user_id)
-)
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);
 
 CREATE TABLE Checkin(
 	business_id	    VARCHAR(22),
@@ -77,13 +77,13 @@ CREATE TABLE Checkin(
     day             VARCHAR(9),
     count           INT,
     PRIMARY KEY(business_id, time, day),
-	FOREIGN KEY business_id REFERENCES Business(business_id) ON DELETE CASCADE
+	FOREIGN KEY (business_id) REFERENCES Business(business_id) ON DELETE CASCADE
 );
 
 CREATE TABLE Reviews(
 	review_id 	VARCHAR(22) PRIMARY KEY,
 	business_id	VARCHAR(22) REFERENCES Business(business_id),
-	user_id	    VARCHAR(22) REFERENCES User(user_id),
+	user_id	    VARCHAR(22) REFERENCES Users(user_id),
     date		DATE,
     stars		FLOAT(2) NOT NULL,
     text 		TEXT,
@@ -97,13 +97,13 @@ CREATE TABLE Hours(
     day_of_week	    VARCHAR (9),
     hours_of_op 	TIMESTAMP,
     PRIMARY KEY (business_id, day_of_week),
-    FOREIGN KEY business_id REFERENCES Business(business_id) ON DELETE CASCADE
+    FOREIGN KEY (business_id) REFERENCES Business(business_id) ON DELETE CASCADE
 );
 
 CREATE TABLE Categories(
     business_id     VARCHAR(22),
     category_name   VARCHAR(30),
     PRIMARY KEY(business_id, category_name),
-    FOREIGN KEY business_id REFERENCES Business(business_id) ON DELETE CASCADE
+    FOREIGN KEY (business_id) REFERENCES Business(business_id) ON DELETE CASCADE
 );
 
