@@ -8,8 +8,8 @@ CREATE TABLE Business(
     postal_code 	VARCHAR(10),
     latitude 	    DECIMAL(12, 9),
     longitude 	    DECIMAL (12, 9),
-    numCheckins     INT,
-    reviewrating    FLOAT(2),
+    numCheckins     INT DEFAULT 0,
+    reviewrating    FLOAT(2) DEFAULT 0.0,
     stars 		    FLOAT(2),
     review_count    INT,
     is_open 	    BOOLEAN
