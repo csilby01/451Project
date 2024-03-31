@@ -1,9 +1,9 @@
 CREATE TABLE Business(
     business_id 	VARCHAR(22) PRIMARY KEY,
-    name 		    VARCHAR(30),
-    neighborhood 	VARCHAR(20),
+    name 		    VARCHAR(255),
+    neighborhood 	VARCHAR(40),
     address 	    VARCHAR(80),
-    city 		    VARCHAR(30),
+    city 		    VARCHAR(255),
     state 		    VARCHAR(13),
     postal_code 	INT,
     latitude 	    DECIMAL(12, 9),
@@ -12,12 +12,12 @@ CREATE TABLE Business(
     reviewrating    FLOAT(2) DEFAULT 0.0,
     stars 		    FLOAT(2),
     review_count    INT,
-    is_open 	    BOOLEAN
+    is_open 	    INT
 );
 
 CREATE TABLE Attribute(
     business_id     VARCHAR(22),
-    attribute       VARCHAR(30),
+    attribute       VARCHAR(50),
     value           TEXT,
     PRIMARY KEY (business_id, attribute),
     FOREIGN KEY (business_id) REFERENCES Business(business_id) ON DELETE CASCADE
@@ -40,7 +40,7 @@ CREATE TABLE Users(
     cool			    INT,
     fans			    INT,
     funny 			    INT,
-    username			VARCHAR(30),
+    username			VARCHAR(80),
     review_count		INT,
     useful			    INT,
     yelping_since		DATE NOT NULL
@@ -63,7 +63,7 @@ CREATE TABLE Elite(
 
 CREATE TABLE Checkin(
 	business_id	    VARCHAR(22),
-	time 		    VARCHAR(5),
+	time 		    VARCHAR(6),
     day             VARCHAR(9),
     count           INT,
     PRIMARY KEY(business_id, time, day),
@@ -93,7 +93,7 @@ CREATE TABLE Hours(
 
 CREATE TABLE Categories(
     business_id     VARCHAR(22),
-    category_name   VARCHAR(30),
+    category_name   VARCHAR(50),
     PRIMARY KEY(business_id, category_name),
     FOREIGN KEY (business_id) REFERENCES Business(business_id) ON DELETE CASCADE
 );

@@ -1,17 +1,21 @@
 import json
 import psycopg2
-
-def executeQuery(sql_str):
+def establish_connection():
     try: 
         conn = psycopg2.connect("dbname='Milestone2DB' user='postgres' host='localhost' password='password'")
     except:
         print('Unable  to connect to database!')
-    cur = conn.cursor()
+    return conn
+
+def executeQuery(sql_str, conn):
     cur.execute(sql_str)
     conn.commit()
-    result = cur.fetchall()
+    return None
+
+def close_connection(conn):
+    cur.close()
     conn.close()
-    return result
+    return None
 
 def cleanStr4SQL(s):
     return s.replace("'","''").replace("\n"," ")
@@ -25,11 +29,11 @@ def getAttributes(attributes):
             L.append((attribute,value))
     return L
 
-def parseBusinessData():
+def parseBusinessData(conn):
     print("Parsing businesses...")
     #read the JSON file
-    with open('.//yelp_business.JSON','r') as f:
-        outfile =  open('.//yelp_business.txt', 'w')
+    with open('dont_push\Yelp-CptS451\yelp_business.JSON','r') as f:
+        outfile =  open('dont_push\Yelp-CptS451\yelp_business.txt', 'w')
         line = f.readline()
         count_line = 0
         #read each JSON abject and extract data
@@ -50,28 +54,28 @@ def parseBusinessData():
                             str(data['is_open'])
             outfile.write(business_str + '\n')
 
-            sql_str = "INSERT INTO Business VALUES (" + business_str + ")" 
-            executeQuery(sql_str)
+            sql_str = "INSERT INTO Business VALUES ('" + data['business_id'] +  "', " + business_str + ")" 
+            executeQuery(sql_str, conn)
 
             for category in data['categories']:
-                category_str = "'" + business + "','" + category + "'"
+                category_str = "'" + business + "','" + cleanStr4SQL(category) + "'"
                 outfile.write(category_str + '\n')
                 sql_str = "INSERT INTO Categories VALUES (" + category_str + ")"
-                executeQuery(sql_str)
+                executeQuery(sql_str, conn)
 
             # process business hours
             for (day,hours) in data['hours'].items():
                 hours_str = "'" + business + "','" + str(day) + "','" + str(hours.split('-')[0]) + "','" + str(hours.split('-')[1]) + "'"
                 outfile.write( hours_str +'\n')
                 sql_str = "INSERT INTO Hours VALUES (" + hours_str + ")"
-                executeQuery(sql_str)
+                executeQuery(sql_str, conn)
 
             #process business attributes
             for (attr,value) in getAttributes(data['attributes']):
                 attr_str = "'" + business + "','" + str(attr) + "','" + str(value)  + "'"
                 outfile.write(attr_str +'\n')
-                sql_str = "INSERT INTO Attributes VALUES (" + attr_str + ")"
-                executeQuery(sql_str)
+                sql_str = "INSERT INTO Attribute VALUES (" + attr_str + ")"
+                executeQuery(sql_str, conn)
 
             line = f.readline()
             count_line +=1
@@ -80,11 +84,11 @@ def parseBusinessData():
     f.close()
 
 
-def parseReviewData():
+def parseReviewData(conn):
     print("Parsing reviews...")
     #reading the JSON file
-    with open('.//yelp_review.JSON','r') as f:
-        outfile =  open('.//yelp_review.txt', 'w')
+    with open('dont_push\Yelp-CptS451\yelp_review.JSON','r') as f:
+        outfile =  open('dont_push\Yelp-CptS451\yelp_review.txt', 'w')
         line = f.readline()
         count_line = 0
         failed_inserts = 0
@@ -93,8 +97,8 @@ def parseReviewData():
             review_str = "'" + data['review_id'] + "'," +  \
                          "'" + data['user_id'] + "'," + \
                          "'" + data['business_id'] + "'," + \
-                         str(data['stars']) + "," + \
                          "'" + data['date'] + "'," + \
+                         str(data['stars']) + "," + \
                          "'" + cleanStr4SQL(data['text']) + "'," +  \
                          str(data['useful']) + "," +  \
                          str(data['funny']) + "," + \
@@ -102,18 +106,19 @@ def parseReviewData():
             outfile.write(review_str +'\n')
             line = f.readline()
             count_line +=1
-            sql_str = "INSERT INTO Hours VALUES (" + review_str + ")"
-            executeQuery(sql_str)
+            sql_str = "INSERT INTO Reviews VALUES (" + review_str + ")"
+            executeQuery(sql_str, conn)
 
     print(count_line)
     outfile.close()
     f.close()
 
-def parseUserData():
+def parseUserData(conn):
     print("Parsing users...")
-    #reading the JSON file
-    with open('.//yelp_user.JSON','r') as f:
-        outfile =  open('.//yelp_user.txt', 'w')
+    # reading the JSON file
+    with open('dont_push\Yelp-CptS451\yelp_user.JSON','r') as f:
+        outfile =  open('dont_push\Yelp-CptS451\yelp_user.txt', 'w')
+        outfile2 = open('dont_push\Yelp-CptS451\yelp_friend.txt', 'w')
         line = f.readline()
         count_line = 0
         while line:
@@ -133,41 +138,46 @@ def parseUserData():
                         str(data['compliment_plain']) + "," + \
                         str(data['compliment_profile']) + "," + \
                         str(data['compliment_writer']) + "," + \
-                        str(data['compliment_cool']) + "," + \
                         str(data["cool"]) + "," + \
                         str(data["fans"]) + "," + \
                         str(data["funny"]) + "," + \
                         "'" + cleanStr4SQL(data["name"]) + "'," + \
                         str(data["review_count"]) + "," + \
                         str(data["useful"]) + "," + \
-                        "'" + cleanStr4SQL(data["yelping_since"]) + ")"
+                        "'" + cleanStr4SQL(data["yelping_since"]) + "'"
             outfile.write(user_str+"\n")
             sql_str = "INSERT INTO Users VALUES (" + user_str + ")"
-            executeQuery(sql_str)
+            executeQuery(sql_str, conn)
             
             for friend in data["friends"]:
-                friend_str = "'" + user_id + "'" + "," + "'" + friend + "'" + "\n"
-                outfile.write(friend_str)
-                friends_sql = "INSERT INTO Friends VALUES (" + friend_str + ")"
-                executeQuery(friends_sql)
+                friend_str = "'" + user_id + "'" + "," + "'" + friend + "'"
+                outfile2.write("INSERT INTO Friends VALUES (" + friend_str + ")\n")
+
 
             for value in data["elite"]:
-                elite_str = "'" + user_id + "'" + "," + value + "\n"
+                elite_str = "'" + user_id + "'" + ", '" + str(value) + "'\n"
                 outfile.write(elite_str)
                 elite_sql = "INSERT INTO Elite VALUES (" + elite_str + ")"
-                executeQuery(elite_sql)
+                executeQuery(elite_sql, conn)
             line = f.readline()
             count_line +=1
 
     print(count_line)
     outfile.close()
+    outfile2.close()
+    f.close()
+    with open('dont_push\Yelp-CptS451\yelp_friend.txt','r') as f:
+        line = f.readline()
+        while line:
+            executeQuery(line, conn)
+            line = f.readline()
     f.close()
 
-def parseCheckinData():
+def parseCheckinData(conn):
     print("Parsing checkins...")
     #reading the JSON file
-    with open('.\yelp_checkin.JSON','r') as f:  # Assumes that the data files are available in the current directory. If not, you should set the path for the yelp data files.
-        outfile = open('yelp_checkin.txt', 'w')
+    with open('dont_push\Yelp-CptS451\yelp_checkin.JSON','r') as f:  # Assumes that the data files are available in the current directory. If not, you should set the path for the yelp data files.
+        outfile = open('dont_push\Yelp-CptS451\yelp_checkin.txt', 'w')
         line = f.readline()
         count_line = 0
         #read each JSON abject and extract data
@@ -182,17 +192,18 @@ def parseCheckinData():
                                   str(count)
                     outfile.write(checkin_str + "\n")
                     sql_str = "INSERT INTO Checkin VALUES (" + checkin_str + ")"
-                    executeQuery(sql_str)
+                    executeQuery(sql_str, conn)
             line = f.readline()
             count_line +=1
-        print(count_line)
+    print(count_line)
     outfile.close()
     f.close()
 
+conn = establish_connection()
+cur = conn.cursor()
+parseBusinessData(conn)
+parseUserData(conn)
+parseCheckinData(conn)
+parseReviewData(conn)
+close_connection(conn)
 
-parseBusinessData()
-parseUserData()
-parseCheckinData()
-parseReviewData()
-
- 
