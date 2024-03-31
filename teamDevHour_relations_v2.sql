@@ -104,6 +104,6 @@ CREATE TABLE Categories(
     business_id     VARCHAR(22),
     category_name   VARCHAR(30),
     PRIMARY KEY(business_id, category_name),
-    FOREIGN KEYU business_id REFERENCES Business(business_id) ON DELETE CASCADE
+    FOREIGN KEY business_id REFERENCES Business(business_id) ON DELETE CASCADE
 );
 
