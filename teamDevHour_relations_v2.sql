@@ -5,7 +5,7 @@ CREATE TABLE Business(
     address 	    VARCHAR(80),
     city 		    VARCHAR(30),
     state 		    VARCHAR(13),
-    postal_code 	VARCHAR(10),
+    postal_code 	INT,
     latitude 	    DECIMAL(12, 9),
     longitude 	    DECIMAL (12, 9),
     numCheckins     INT DEFAULT 0,
@@ -22,16 +22,6 @@ CREATE TABLE Attribute(
     PRIMARY KEY (business_id, attribute),
     FOREIGN KEY (business_id) REFERENCES Business(business_id) ON DELETE CASCADE
 );
-
--- CREATE TABLE SubAttribute(
---     business_id    VARCHAR(22),
---     attribute      VARCHAR(30),
---     sub_attribute  VARCHAR(30),
---     value          TEXT,
---     PRIMARY KEY (business_id, attribute, sub_attribute),
---     FOREIGN KEY (business_id) REFERENCES Business(business_id) ON DELETE CASCADE,
---     FOREIGN KEY (business_id, attribute) REFERENCES Attribute(business_id, attribute)
--- );
 
 CREATE TABLE Users(
     user_id		        VARCHAR(22) PRIMARY KEY,
@@ -82,8 +72,8 @@ CREATE TABLE Checkin(
 
 CREATE TABLE Reviews(
 	review_id 	VARCHAR(22) PRIMARY KEY,
+    user_id	    VARCHAR(22) REFERENCES Users(user_id),
 	business_id	VARCHAR(22) REFERENCES Business(business_id),
-	user_id	    VARCHAR(22) REFERENCES Users(user_id),
     date		DATE,
     stars		FLOAT(2) NOT NULL,
     text 		TEXT,
@@ -95,7 +85,8 @@ CREATE TABLE Reviews(
 CREATE TABLE Hours(
     business_id 	VARCHAR(22),
     day_of_week	    VARCHAR (9),
-    hours_of_op 	TIMESTAMP,
+    open            VARCHAR(5),
+    close           VARCHAR(5),
     PRIMARY KEY (business_id, day_of_week),
     FOREIGN KEY (business_id) REFERENCES Business(business_id) ON DELETE CASCADE
 );
@@ -106,4 +97,3 @@ CREATE TABLE Categories(
     PRIMARY KEY(business_id, category_name),
     FOREIGN KEY (business_id) REFERENCES Business(business_id) ON DELETE CASCADE
 );
-

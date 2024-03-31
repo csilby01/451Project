@@ -1,4 +1,17 @@
 import json
+import psycopg2
+
+def executeQuery(sql_str):
+    try: 
+        conn = psycopg2.connect("dbname='Milestone2DB' user='postgres' host='localhost' password='password'")
+    except:
+        print('Unable  to connect to database!')
+    cur = conn.cursor()
+    cur.execute(sql_str)
+    conn.commit()
+    result = cur.fetchall()
+    conn.close()
+    return result
 
 def cleanStr4SQL(s):
     return s.replace("'","''").replace("\n"," ")
@@ -24,31 +37,41 @@ def parseBusinessData():
             data = json.loads(line)
             business = data['business_id'] #business id
             business_str =  "'" + cleanStr4SQL(data['name']) + "'," + \
+                            "'" + cleanStr4SQL(data['neighborhood']) + "'," + \
                             "'" + cleanStr4SQL(data['address']) + "'," + \
                             "'" + cleanStr4SQL(data['city']) + "'," +  \
                             "'" + data['state'] + "'," + \
                             "'" + data['postal_code'] + "'," +  \
                             str(data['latitude']) + "," +  \
                             str(data['longitude']) + "," + \
+                            "0, 0.0, " + \
                             str(data['stars']) + "," + \
                             str(data['review_count']) + "," + \
                             str(data['is_open'])
             outfile.write(business_str + '\n')
 
-            # process business categories
+            sql_str = "INSERT INTO Business VALUES (" + business_str + ")" 
+            executeQuery(sql_str)
+
             for category in data['categories']:
                 category_str = "'" + business + "','" + category + "'"
                 outfile.write(category_str + '\n')
+                sql_str = "INSERT INTO Categories VALUES (" + category_str + ")"
+                executeQuery(sql_str)
 
             # process business hours
             for (day,hours) in data['hours'].items():
                 hours_str = "'" + business + "','" + str(day) + "','" + str(hours.split('-')[0]) + "','" + str(hours.split('-')[1]) + "'"
                 outfile.write( hours_str +'\n')
+                sql_str = "INSERT INTO Hours VALUES (" + hours_str + ")"
+                executeQuery(sql_str)
 
             #process business attributes
             for (attr,value) in getAttributes(data['attributes']):
                 attr_str = "'" + business + "','" + str(attr) + "','" + str(value)  + "'"
                 outfile.write(attr_str +'\n')
+                sql_str = "INSERT INTO Attributes VALUES (" + attr_str + ")"
+                executeQuery(sql_str)
 
             line = f.readline()
             count_line +=1
@@ -79,6 +102,8 @@ def parseReviewData():
             outfile.write(review_str +'\n')
             line = f.readline()
             count_line +=1
+            sql_str = "INSERT INTO Hours VALUES (" + review_str + ")"
+            executeQuery(sql_str)
 
     print(count_line)
     outfile.close()
@@ -96,19 +121,41 @@ def parseUserData():
             user_id = data['user_id']
             user_str = \
                       "'" + user_id + "'," + \
-                      "'" + cleanStr4SQL(data["name"]) + "'," + \
-                      "'" + cleanStr4SQL(data["yelping_since"]) + "'," + \
-                      str(data["review_count"]) + "," + \
-                      str(data["fans"]) + "," + \
-                      str(data["average_stars"]) + "," + \
-                      str(data["funny"]) + "," + \
-                      str(data["useful"]) + "," + \
-                      str(data["cool"])
+                        str(data["average_stars"]) + "," + \
+                        str(data['compliment_cool']) + "," + \
+                        str(data['compliment_cute']) + "," + \
+                        str(data['compliment_funny']) + "," + \
+                        str(data['compliment_hot']) + "," + \
+                        str(data['compliment_list']) + "," + \
+                        str(data['compliment_more']) + "," + \
+                        str(data['compliment_note']) + "," + \
+                        str(data['compliment_photos']) + "," + \
+                        str(data['compliment_plain']) + "," + \
+                        str(data['compliment_profile']) + "," + \
+                        str(data['compliment_writer']) + "," + \
+                        str(data['compliment_cool']) + "," + \
+                        str(data["cool"]) + "," + \
+                        str(data["fans"]) + "," + \
+                        str(data["funny"]) + "," + \
+                        "'" + cleanStr4SQL(data["name"]) + "'," + \
+                        str(data["review_count"]) + "," + \
+                        str(data["useful"]) + "," + \
+                        "'" + cleanStr4SQL(data["yelping_since"]) + ")"
             outfile.write(user_str+"\n")
-
+            sql_str = "INSERT INTO Users VALUES (" + user_str + ")"
+            executeQuery(sql_str)
+            
             for friend in data["friends"]:
                 friend_str = "'" + user_id + "'" + "," + "'" + friend + "'" + "\n"
                 outfile.write(friend_str)
+                friends_sql = "INSERT INTO Friends VALUES (" + friend_str + ")"
+                executeQuery(friends_sql)
+
+            for value in data["elite"]:
+                elite_str = "'" + user_id + "'" + "," + value + "\n"
+                outfile.write(elite_str)
+                elite_sql = "INSERT INTO Elite VALUES (" + elite_str + ")"
+                executeQuery(elite_sql)
             line = f.readline()
             count_line +=1
 
@@ -134,6 +181,8 @@ def parseCheckinData():
                                   "'" + hour + "'," + \
                                   str(count)
                     outfile.write(checkin_str + "\n")
+                    sql_str = "INSERT INTO Checkin VALUES (" + checkin_str + ")"
+                    executeQuery(sql_str)
             line = f.readline()
             count_line +=1
         print(count_line)
