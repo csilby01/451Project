@@ -2,7 +2,7 @@ import json
 import psycopg2
 def establish_connection():
     try: 
-        conn = psycopg2.connect("dbname='Milestone2DB' user='postgres' host='localhost' password='password'")
+        conn = psycopg2.connect("dbname='Milestone2DB' user='postgres' host='localhost' password='14charlie'")
     except:
         print('Unable  to connect to database!')
     return conn
@@ -32,8 +32,8 @@ def getAttributes(attributes):
 def parseBusinessData(conn):
     print("Parsing businesses...")
     #read the JSON file
-    with open('dont_push\Yelp-CptS451\yelp_business.JSON','r') as f:
-        outfile =  open('dont_push\Yelp-CptS451\yelp_business.txt', 'w')
+    with open('dont_push/Yelp-CptS451/yelp_business.JSON','r') as f:
+        outfile =  open('dont_push/Yelp-CptS451/yelp_business.txt', 'w')
         line = f.readline()
         count_line = 0
         #read each JSON abject and extract data
@@ -87,8 +87,8 @@ def parseBusinessData(conn):
 def parseReviewData(conn):
     print("Parsing reviews...")
     #reading the JSON file
-    with open('dont_push\Yelp-CptS451\yelp_review.JSON','r') as f:
-        outfile =  open('dont_push\Yelp-CptS451\yelp_review.txt', 'w')
+    with open('dont_push/Yelp-CptS451/yelp_review.JSON','r') as f:
+        outfile =  open('dont_push/Yelp-CptS451/yelp_review.txt', 'w')
         line = f.readline()
         count_line = 0
         failed_inserts = 0
@@ -116,9 +116,9 @@ def parseReviewData(conn):
 def parseUserData(conn):
     print("Parsing users...")
     # reading the JSON file
-    with open('dont_push\Yelp-CptS451\yelp_user.JSON','r') as f:
-        outfile =  open('dont_push\Yelp-CptS451\yelp_user.txt', 'w')
-        outfile2 = open('dont_push\Yelp-CptS451\yelp_friend.txt', 'w')
+    with open('dont_push/Yelp-CptS451/yelp_user.JSON','r') as f:
+        outfile =  open('dont_push/Yelp-CptS451/yelp_user.txt', 'w')
+        outfile2 = open('dont_push/Yelp-CptS451/yelp_friend.txt', 'w')
         line = f.readline()
         count_line = 0
         while line:
@@ -166,7 +166,7 @@ def parseUserData(conn):
     outfile.close()
     outfile2.close()
     f.close()
-    with open('dont_push\Yelp-CptS451\yelp_friend.txt','r') as f:
+    with open('dont_push/Yelp-CptS451/yelp_friend.txt','r') as f:
         line = f.readline()
         while line:
             executeQuery(line, conn)
@@ -176,8 +176,8 @@ def parseUserData(conn):
 def parseCheckinData(conn):
     print("Parsing checkins...")
     #reading the JSON file
-    with open('dont_push\Yelp-CptS451\yelp_checkin.JSON','r') as f:  # Assumes that the data files are available in the current directory. If not, you should set the path for the yelp data files.
-        outfile = open('dont_push\Yelp-CptS451\yelp_checkin.txt', 'w')
+    with open('dont_push/Yelp-CptS451/yelp_checkin.JSON','r') as f:  # Assumes that the data files are available in the current directory. If not, you should set the path for the yelp data files.
+        outfile = open('dont_push/Yelp-CptS451/yelp_checkin.txt', 'w')
         line = f.readline()
         count_line = 0
         #read each JSON abject and extract data
